@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Video Meme Maker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #1f2937;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #020617;
+    }
+
+    header h1 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    header span {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
+      gap: 16px;
+      padding: 16px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: #020617;
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+      padding: 14px;
+      box-sizing: border-box;
+    }
+
+    .panel h2 {
+      font-size: 14px;
+      margin: 0 0 10px;
+      color: #e5e7eb;
+    }
+
+    .panel small {
+      color: #9ca3af;
+      font-size: 11px;
+    }
+
+    .upload-area {
+      border: 1px dashed #4b5563;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      background: #020617;
+    }
+
+    .upload-area:hover {
+      border-color: #60a5fa;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #9ca3af;
+      border: 1px solid #374151;
+    }
+
+    .field {
+      margin-top: 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: #9ca3af;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 6px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: #60a5fa;
+    }
+
+    .preview-wrapper {
+      position: relative;
+      background: #020617;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #1f2937;
+      aspect-ratio: 9 / 16;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .meme-text {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-align: center;
+      text-shadow:
+        2px 2px 0 #000,
+        -2px 2px 0 #000,
+        2px -2px 0 #000,
+        -2px -2px 0 #000;
+      font-family: Impact, system-ui, sans-serif;
+      padding: 4px 8px;
+      font-size: 20px;
+      line-height: 1.1;
+      pointer-events: none;
+    }
+
+    .meme-top {
+      top: 8px;
+    }
+
+    .meme-bottom {
+      bottom: 8px;
+    }
+
+    .ad-slot {
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px dashed #374151;
+      padding: 10px;
+      font-size: 11px;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    footer {
+      padding: 10px 16px;
+      border-top: 1px solid #1f2937;
+      font-size: 11px;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #020617;
+    }
+
+    footer span {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Video Meme Maker</h1>
+      <span>Turn any video into a meme-ready clip.</span>
+    </div>
+    <div>
+      <span>CPM-friendly · English first</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- 左：編集パネル -->
+    <section class="panel">
+      <h2>1. Upload & Edit</h2>
+      <small>Upload a short video and add meme text.</small>
+
+      <div id="uploadArea" class="upload-area" onclick="fileInput.click()">
+        <p style="margin:0 0 6px;font-size:13px;">Drop a video here or click to upload</p>
+        <small>MP4 / WebM · up to ~100MB</small>
+        <br /><br />
+        <button class="btn btn-ghost" type="button">Choose video</button>
+        <input id="fileInput" type="file" accept="video/*" />
+      </div>
+
+      <div class="field">
+        <label for="topText">Top text</label>
+        <input id="topText" type="text" placeholder="WHEN YOU TRY TO STUDY..." />
+      </div>
+
+      <div class="field">
+        <label for="bottomText">Bottom text</label>
+        <input id="bottomText" type="text" placeholder="BUT MEMES HIT DIFFERENT" />
+      </div>
+
+      <div class="field" style="margin-top:14px; display:flex; gap:8px;">
+        <button id="downloadBtn" class="btn btn-primary" type="button" disabled>
+          Export current frame as meme
+        </button>
+        <button id="playPauseBtn" class="btn btn-ghost" type="button" disabled>
+          Play
+        </button>
+      </div>
+
+      <div class="ad-slot">
+        Ad slot (728x90) – impression-based banner here
+      </div>
+    </section>
+
+    <!-- 右：プレビュー -->
+    <section class="panel">
+      <h2>2. Preview</h2>
+      <small>Adjust your text and capture the perfect frame.</small>
+
+      <div class="preview-wrapper" id="previewWrapper">
+        <video id="video" controls muted></video>
+        <div id="memeTop" class="meme-text meme-top"></div>
+        <div id="memeBottom" class="meme-text meme-bottom"></div>
+      </div>
+
+      <div class="ad-slot">
+        Ad slot (300x250) – sidebar impression ad
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Built for meme creators · Optimized for CPM ads</span>
+    <span>Made by abcd + AI</span>
+  </footer>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const uploadArea = document.getElementById("uploadArea");
+    const video = document.getElementById("video");
+    const topTextInput = document.getElementById("topText");
+    const bottomTextInput = document.getElementById("bottomText");
+    const memeTop = document.getElementById("memeTop");
+    const memeBottom = document.getElementById("memeBottom");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const previewWrapper = document.getElementById("previewWrapper");
+
+    uploadArea.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = "#60a5fa";
+    });
+
+    uploadArea.addEventListener("dragleave", () => {
+      uploadArea.style.borderColor = "#4b5563";
+    });
+
+    uploadArea.addEventListener("drop", (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = "#4b5563";
+      const file = e.dataTransfer.files[0];
+      if (file) loadVideo(file);
+    });
+
+    uploadArea.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (file) loadVideo(file);
+    });
+
+    function loadVideo(file) {
+      const url = URL.createObjectURL(file);
+      video.src = url;
+      video.load();
+      video.onloadeddata = () => {
+        downloadBtn.disabled = false;
+        playPauseBtn.disabled = false;
+      };
+    }
+
+    function updateMemeText() {
+      memeTop.textContent = topTextInput.value.toUpperCase();
+      memeBottom.textContent = bottomTextInput.value.toUpperCase();
+    }
+
+    topTextInput.addEventListener("input", updateMemeText);
+    bottomTextInput.addEventListener("input", updateMemeText);
+    updateMemeText();
+
+    playPauseBtn.addEventListener("click", () => {
+      if (video.paused) {
+        video.play();
+        playPauseBtn.textContent = "Pause";
+      } else {
+        video.pause();
+        playPauseBtn.textContent = "Play";
+      }
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      if (!video.src) return;
+
+      const rect = previewWrapper.getBoundingClientRect();
+      const width = 720;
+      const height = Math.round(width * (rect.height / rect.width));
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      const videoAspect = vw / vh;
+      const canvasAspect = width / height;
+
+      let drawWidth, drawHeight, dx, dy;
+      if (videoAspect > canvasAspect) {
+        drawHeight = height;
+        drawWidth = height * videoAspect;
+        dx = (width - drawWidth) / 2;
+        dy = 0;
+      } else {
+        drawWidth = width;
+        drawHeight = width / videoAspect;
+        dx = 0;
+        dy = (height - drawHeight) / 2;
+      }
+
+      ctx.drawImage(video, dx, dy, drawWidth, drawHeight);
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "white";
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 6;
+      ctx.font = "bold 40px Impact, system-ui, sans-serif";
+
+      const topLines = wrapText(ctx, memeTop.textContent, width * 0.9);
+      const bottomLines = wrapText(ctx, memeBottom.textContent, width * 0.9);
+
+      const topBaseY = 50;
+      topLines.forEach((line, i) => {
+        const y = topBaseY + i * 44;
+        ctx.strokeText(line, width / 2, y);
+        ctx.fillText(line, width / 2, y);
+      });
+
+      const bottomBaseY = height - 30 - (bottomLines.length - 1) * 44;
+      bottomLines.forEach((line, i) => {
+        const y = bottomBaseY + i * 44;
+        ctx.strokeText(line, width / 2, y);
+        ctx.fillText(line, width / 2, y);
+      });
+
+      const link = document.createElement("a");
+      link.download = "meme.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+
+    function wrapText(ctx, text, maxWidth) {
+      if (!text) return [];
+      const words = text.split(" ");
+      const lines = [];
+      let current = "";
+
+      for (let i = 0; i < words.length; i++) {
+        const test = current ? current + " " + words[i] : words[i];
+        const width = ctx.measureText(test).width;
+        if (width > maxWidth && current) {
+          lines.push(current);
+          current = words[i];
+        } else {
+          current = test;
+        }
+      }
+      if (current) lines.push(current);
+      return lines;
+    }
+  </script>
+</body>
+</html>
